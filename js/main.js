@@ -144,11 +144,12 @@ document.addEventListener('DOMContentLoaded', () => {
             // Simple validation check
             const doctorName = document.getElementById('doctor-name').value.trim();
             const doctorPhone = document.getElementById('doctor-phone').value.trim();
+            const doctorEmail = document.getElementById('doctor-email').value.trim();
             const specialty = document.getElementById('clinic-specialty') ? document.getElementById('clinic-specialty').value.trim() : '';
             const systemType = document.getElementById('system-type').value;
             const notes = document.getElementById('notes') ? document.getElementById('notes').value.trim() : '';
             
-            if (!doctorName || !doctorPhone || !systemType) {
+            if (!doctorName || !doctorPhone || !doctorEmail || !systemType) {
                 showStatus('يرجى ملء جميع الحقول المطلوبة.', 'error');
                 return;
             }
@@ -193,6 +194,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 `━━━━━━━━━━━━━━━━━━━━━━━━\n\n` +
                 `الاسم: ${doctorName}\n` +
                 `الهاتف: ${doctorPhone}\n` +
+                `البريد الإلكتروني: ${doctorEmail}\n` +
                 `التخصص / العيادة: ${specialty || 'غير محدد'}\n` +
                 `النظام المطلوب: ${systemLabels[systemType] || systemType}\n` +
                 `ملاحظات: ${notes || 'لا توجد'}\n\n` +
@@ -202,27 +204,49 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const mailtoLink = `mailto:medixiasoft@gmail.com?subject=${emailSubject}&body=${emailBody}`;
 
-            // Open email client
-            window.location.href = mailtoLink;
-
-            // Also build WhatsApp message as backup
-            const waMessage = encodeURIComponent(
-                `*طلب تجربة مجانية من موقع ميديكسيا*\n\n` +
-                `الاسم: ${doctorName}\n` +
-                `الهاتف: ${doctorPhone}\n` +
-                `التخصص: ${specialty || 'غير محدد'}\n` +
-                `النظام: ${systemLabels[systemType] || systemType}\n` +
-                `ملاحظات: ${notes || 'لا توجد'}`
-            );
-
-            setTimeout(() => {
+            // Send details directly via FormSubmit API in the background without opening email client
+            fetch("https://formsubmit.co/ajax/medixiasoft@gmail.com", {
+                method: "POST",
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    "الاسم الكريم": doctorName,
+                    "رقم الهاتف": doctorPhone,
+                    "email": doctorEmail, // Sets Reply-To header
+                    "التخصص / العيادة": specialty || 'غير محدد',
+                    "النظام المطلوب": systemLabels[systemType] || systemType,
+                    "ملاحظات إضافية": notes || 'لا توجد',
+                    "_subject": `طلب تجربة مجانية جديد من: ${doctorName}`,
+                    "_captcha": "false" // Disables spam captcha screen for submitter
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = originalBtnText;
                 
-                // Show success message with WhatsApp backup link
-                showStatus('تم فتح برنامج البريد الإلكتروني لإرسال طلبك! إذا لم يُفتح تلقائياً، يمكنك التواصل عبر واتساب: 01552241839', 'success');
+                // FormSubmit sends success: "true" (as string) or true (boolean)
+                if (data.success === "true" || data.success === true) {
+                    showStatus('تم إرسال طلبك بنجاح دكتور! سنتواصل معك عبر الهاتف والواتساب قريباً لتفعيل تجربتك المجانية.', 'success');
+                    contactForm.reset();
+                } else {
+                    // Fallback to mailto
+                    showStatus('تم تجهيز طلبك! يرجى الضغط على إرسال في نافذة البريد لإتمامه.', 'success');
+                    window.location.href = mailtoLink;
+                    contactForm.reset();
+                }
+            })
+            .catch(error => {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalBtnText;
+                
+                // Fallback to mailto if network error
+                showStatus('جاري فتح تطبيق البريد لإرسال الطلب...', 'success');
+                window.location.href = mailtoLink;
                 contactForm.reset();
-            }, 1000);
+            });
 
             function showStatus(msg, type) {
                 statusDiv.textContent = msg;
