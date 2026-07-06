@@ -232,20 +232,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     showStatus('تم إرسال طلبك بنجاح دكتور! سنتواصل معك عبر الهاتف والواتساب قريباً لتفعيل تجربتك المجانية.', 'success');
                     contactForm.reset();
                 } else {
-                    // Fallback to mailto
-                    showStatus('تم تجهيز طلبك! يرجى الضغط على إرسال في نافذة البريد لإتمامه.', 'success');
-                    window.location.href = mailtoLink;
-                    contactForm.reset();
+                    showStatus('حدث خطأ أثناء إرسال الطلب، يرجى المحاولة مرة أخرى أو التواصل معنا عبر الواتساب مباشرة.', 'error');
                 }
             })
             .catch(error => {
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = originalBtnText;
                 
-                // Fallback to mailto if network error
-                showStatus('جاري فتح تطبيق البريد لإرسال الطلب...', 'success');
-                window.location.href = mailtoLink;
-                contactForm.reset();
+                showStatus('حدث خطأ في الاتصال، يرجى التحقق من الإنترنت والمحاولة مرة أخرى أو مراسلتنا عبر الواتساب.', 'error');
             });
 
             function showStatus(msg, type) {
