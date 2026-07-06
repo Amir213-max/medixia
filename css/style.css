@@ -1428,23 +1428,66 @@ footer {
     .hero-buttons .btn {
         width: 100%;
     }
+    
     .hero-features {
         flex-direction: column;
         align-items: flex-start;
         display: inline-flex;
     }
     
+    .nav-container {
+        padding: 0 10px;
+    }
+    
+    .nav-actions {
+        gap: 6px;
+    }
+    
+    .nav-actions .btn {
+        padding: 0 10px !important;
+        font-size: 0.75rem !important;
+        display: inline-flex;
+        white-space: nowrap;
+        border-radius: 6px;
+        height: 28px;
+        align-items: center;
+    }
+    
+    .logo-img {
+        width: 34px !important;
+        height: 34px !important;
+    }
+    
+    .logo-text {
+        display: none !important;
+    }
+    
+    .theme-toggle-btn {
+        width: 28px;
+        height: 28px;
+        min-width: 28px;
+    }
+    
+    .theme-toggle-btn svg {
+        width: 14px;
+        height: 14px;
+    }
+    
+    .hamburger {
+        width: 24px;
+        height: 16px;
+    }
     .nav-menu {
         position: fixed;
         top: var(--nav-height);
-        left: -100%;
+        right: -100%;
         width: 100%;
         height: calc(100vh - var(--nav-height));
         background: var(--bg-secondary);
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        transition: left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         z-index: 999;
         box-shadow: 0 10px 20px rgba(0,0,0,0.05);
         border-top: 1px solid var(--border-color);
@@ -1452,7 +1495,7 @@ footer {
     }
     
     .nav-menu.open {
-        left: 0;
+        right: 0;
     }
     
     .hamburger {
